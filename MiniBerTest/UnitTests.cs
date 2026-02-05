@@ -1,4 +1,6 @@
-﻿namespace MiniBerTest
+﻿using Microsoft.Testing.Platform.Extensions.Messages;
+
+namespace MiniBerTest
 {
     [TestClass]
     public sealed class UnitTests
@@ -379,14 +381,6 @@
 
             Assert.IsTrue(node3.ContentType == MiniBer.ContentTypes.Primitive);
         }
-
-        [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Error01()
-        {
-
-        }
-
 
         #endregion
 

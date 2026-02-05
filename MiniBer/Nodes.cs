@@ -154,7 +154,14 @@ namespace MiniBer
             if (Parsed) return;
             if (Data == null)
             {
+                Parsed = true;
                 System.Diagnostics.Trace.TraceWarning("Can't Parse() as Data is NULL.");
+                return;
+            }
+            if (Data.Length == 0)
+            {
+                Parsed = true;
+                System.Diagnostics.Trace.TraceWarning("Can't Parse() as Data is EMPTY.");
                 return;
             }
             using (var ms = new MemoryStream(Data))
