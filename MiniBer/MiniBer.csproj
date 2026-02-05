@@ -1,0 +1,57 @@
+﻿<!--
+  © 2025 Sebastiano Pallaro
+  Released under the terms of MIT license.
+  Please see LICENSE.md for more details.
+  -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MiniBer</RootNamespace>
+
+    <!-- AOT related properties -->
+    
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    
+    <!-- PDB management properties -->
+    
+    <DebugType>embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+
+    <!-- NuGet package related properties -->
+    
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <PackageId>MiniBer</PackageId>
+    <Description>Versatile ASN.1 parser for .NET (BER/DER/CER/TLV).</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.1</Version>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/spallaro/MiniBer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>tlv;ber;der;cer;asn;asn1;asn.1</PackageTags>
+    <PackageIcon>Logo.png</PackageIcon>
+    <Authors>Sebastiano Pallaro</Authors>
+    <Copyright>© $([System.DateTime]::Now.ToString("yyyy")) $(Authors)</Copyright>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText($(MSBuildProjectDirectory)/../CHANGELOG.md))</PackageReleaseNotes>
+
+    <!-- Assembly related properties -->
+    <AssemblyTitle>$(PackageId)</AssemblyTitle>
+    <AssemblyDescription>$(Description)</AssemblyDescription>
+    <AssemblyConfiguration>$(Configuration)</AssemblyConfiguration>
+    <AssemblyCompany>$(Authors)</AssemblyCompany>
+    <AssemblyProduct>$(PackageId)</AssemblyProduct>
+    <AssemblyCopyright>$(Copyright)</AssemblyCopyright>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Logo.png" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
