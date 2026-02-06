@@ -16,9 +16,5 @@ namespace MiniBer
         /// Source TLV data doesn't include Values, only Tags and Lengths.
         /// </summary>
         NoData = 0b00000001,
-        /// <summary>
-        /// Decode nodes data only when required.
-        /// </summary>
-        SmartDecode = 0b00000010
     }
 }

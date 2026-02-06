@@ -1,15 +1,31 @@
-﻿using Microsoft.Testing.Platform.Extensions.Messages;
-
-namespace MiniBerTest
+﻿namespace MiniBer.UnitTests
 {
     [TestClass]
     public sealed class UnitTests
     {
-        #region TLV
+        [TestMethod]
+        public void Test01()
+        {
+            MiniBer.Nodes nodes = MiniBer.Decoder.Decode(
+                data: null);
+
+            Assert.IsTrue(nodes != null);
+
+            Assert.IsTrue(nodes.Count == 0);
+        }
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct01()
+        public void Test02()
+        {
+            MiniBer.Nodes nodes = MiniBer.Decoder.Decode(data: []);
+
+            Assert.IsTrue(nodes != null);
+
+            Assert.IsTrue(nodes.Count == 0);
+        }
+
+        [TestMethod]
+        public void Test03()
         {
             byte[] data = [0x01, 0x01, 0xFF];
 
@@ -41,8 +57,7 @@ namespace MiniBerTest
         }
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct02()
+        public void Test04()
         {
             byte[] data = [0x9F, 0x1A, 0x02, 0x12, 0x34];
 
@@ -74,8 +89,7 @@ namespace MiniBerTest
         }
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct03()
+        public void Test05()
         {
             byte[] data = [0xDF, 0x00, 0x03, 0xAB, 0xCD, 0xEF];
 
@@ -107,8 +121,7 @@ namespace MiniBerTest
         }
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct04()
+        public void Test06()
         {
             byte[] data = [0x5C, 0x03, 0x01, 0x02, 0x03];
 
@@ -140,8 +153,7 @@ namespace MiniBerTest
         }
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct05()
+        public void Test07()
         {
             byte[] data = [0x6F, 0x00];
 
@@ -172,8 +184,7 @@ namespace MiniBerTest
 
 
         [TestMethod]
-        [TestCategory("TLV")]
-        public void TLV_Correct06()
+        public void Test08()
         {
             /*
              
@@ -382,55 +393,108 @@ namespace MiniBerTest
             Assert.IsTrue(node3.ContentType == MiniBer.ContentTypes.Primitive);
         }
 
-        #endregion
+        [TestMethod]
+        public void Test09()
+        {
+            byte[] data = [
+                0x02, 0x03, 0x0C, 0x05, 0x04,
+                0x01, 0x0A, 0x02, 0x16, 0x04,
+                0x03, 0x03, 0x12, 0x05, 0x06,
+                0x01, 0x09, 0x04, 0x1B, 0x02
+            ];
+
+            MiniBer.Nodes nodes = MiniBer.Decoder.Decode(
+                data: data,
+                decodeOptions: MiniBer.DecodeOptions.NoData);
+
+            Assert.IsTrue(nodes != null);
+
+            Assert.IsTrue(nodes.Count == 10);
+
+            Test01_Check(nodes[0], 0x02, 3);
+            Test01_Check(nodes[1], 0x0C, 5);
+            Test01_Check(nodes[2], 0x04, 1);
+            Test01_Check(nodes[3], 0x0A, 2);
+            Test01_Check(nodes[4], 0x16, 4);
+            Test01_Check(nodes[5], 0x03, 3);
+            Test01_Check(nodes[6], 0x12, 5);
+            Test01_Check(nodes[7], 0x06, 1);
+            Test01_Check(nodes[8], 0x09, 4);
+            Test01_Check(nodes[9], 0x1B, 2);
+        }
+
+        private void Test01_Check(
+            MiniBer.Node node,
+            int tagNumber,
+            int length)
+        {
+            Assert.IsTrue(node.TagNumber == tagNumber);
+            Assert.IsTrue(node.Class == MiniBer.Classes.Universal);
+            Assert.IsTrue(node.ContentType == MiniBer.ContentTypes.Primitive);
+            Assert.IsTrue(node.Length == length);
+            Assert.IsTrue(node.Contents != null);
+            Assert.IsTrue(node.Contents?.Length == 0);
+        }
 
         [TestMethod]
-        public void TestDecode()
+        public void Test10()
         {
-            /*
-             * Sample data generated with Copilot
-             *
-             * MyData ::= SEQUENCE {
-             *   version INTEGER,
-             *   payload OCTET STRING,
-             *   active  BOOLEAN
-             * }
-             * 
-             * SEQUENCE (Tag 30)
-             *   30: Tag universale per una SEQUENCE 
-             *       (Costrutto composto).
-             *   0C: Lunghezza totale dei dati 
-             *       interni, pari a 12 byte.
-             * 
-             * INTEGER (Tag 02)
-             *   02: Tag dell’INTEGER.
-             *   01: Lunghezza (1 byte).
-             *   01: Valore 1 (in esadecimale).
-             *   
-             * OCTET STRING (Tag 04)
-             *   04: Tag per l’OCTET STRING.
-             *   04: Lunghezza (4 byte).
-             *   61 62 63 64: Valori in esadecimale 
-             *       corrispondenti ai caratteri ASCII 
-             *       "a", "b", "c", "d".
-             *       
-             * BOOLEAN (Tag 01)
-             *   01: Tag per il BOOLEAN.
-             *   01: Lunghezza (1 byte).
-             *   FF: Valore TRUE (in DER, la codifica 
-             *       canonica per TRUE è 0xFF).
-             */
-            byte[] data = [
-                0x30, 0x0C, 0x02, 0x01,
-                0x01, 0x04, 0x04, 0x61,
-                0x62, 0x63, 0x64, 0x01,
-                0x01, 0xFF];
+            // Missing length and value.
 
-            var nodes = MiniBer.Decoder.Decode(data);
+            byte[] data = [0x01];
 
-            Assert.IsNotNull(nodes);
+            Assert.ThrowsException<MiniBer.UnexpectedEndOfStreamException>(() =>
+            {
+                MiniBer.Decoder.Decode(data);
+            });
+        }
 
-            // TODO
+        [TestMethod]
+        public void Test11()
+        {
+            // Declared length 2 but only one value byte.
+
+            byte[] data = [0x9F, 0x1A, 0x02, 0x12];
+
+            Assert.ThrowsException<MiniBer.UnexpectedEndOfStreamException>(() =>
+            {
+                MiniBer.Decoder.Decode(data);
+            });
+        }
+
+        [TestMethod]
+        public void Test12()
+        {
+            // Single-octet tag marker 5F requires a following tag octet.
+
+            byte[] data = [0x5F];
+
+            Assert.ThrowsException<MiniBer.UnexpectedEndOfStreamException>(() =>
+            {
+                MiniBer.Decoder.Decode(data);
+            });
+        }
+
+        [TestMethod]
+        public void Test13()
+        {
+            byte[] data = [0x04, 0x81];
+
+            Assert.ThrowsException<MiniBer.UnexpectedEndOfStreamException>(() =>
+            {
+                MiniBer.Decoder.Decode(data);
+            });
+        }
+
+        [TestMethod]
+        public void Test14()
+        {
+            byte[] data = [0xDF, 0x00, 0x05, 0xAA, 0xBB];
+
+            Assert.ThrowsException<MiniBer.UnexpectedEndOfStreamException>(() =>
+            {
+                MiniBer.Decoder.Decode(data);
+            });
         }
     }
 }

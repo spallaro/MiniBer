@@ -32,10 +32,8 @@ namespace MiniBer
             Data = data;
             DecodeOptions = decodeOptions;
             Offset = offset;
-            if (!decodeOptions.HasFlag(DecodeOptions.SmartDecode))
-            {
-                Parse();
-            }
+
+            Parse();
         }
 
         internal Nodes(
@@ -71,6 +69,12 @@ namespace MiniBer
         {
             get => Search(identifierOctects: identifierOctects);
 
+        }
+
+        public new Enumerator GetEnumerator()
+        {
+            Parse();
+            return base.GetEnumerator();
         }
 
         /// <summary>
@@ -148,7 +152,7 @@ namespace MiniBer
             return this[path[index]]?.Nodes?.SearchPath(index: ++index, path);
         }
 
-        private void Parse() => Parse(offset: Offset);
+        internal void Parse() => Parse(offset: Offset);
         private void Parse(int offset)
         {
             if (Parsed) return;
@@ -180,6 +184,10 @@ namespace MiniBer
                     // - Bit 6: encoding (primitive or constructed).
                     // - Bit 7 to 8: Class.
                     int tag = ms.ReadByte();
+                    if (tag == -1)
+                    {
+                        throw new UnexpectedEndOfStreamException();
+                    }
 
                     node.IdentifierOctets =
                     [
@@ -193,6 +201,11 @@ namespace MiniBer
                         while (true)
                         {
                             tag = ms.ReadByte();
+                            if (tag == -1)
+                            {
+                                throw new UnexpectedEndOfStreamException();
+                            }
+
                             node.IdentifierOctets.Add((byte)tag);
 
                             if ((tag & 0b10000000) != 0b10000000)
@@ -231,10 +244,18 @@ namespace MiniBer
 
                     // 8.1.3: LENGTH OCTECTS
 
+                    int read;
+
                     // After the tag number bytes, there are the data length bytes.
+                    read = ms.ReadByte();
+                    if (read == -1)
+                    {
+                        throw new UnexpectedEndOfStreamException();
+                    }
+
                     node.LengthOctects =
                     [
-                        (byte)ms.ReadByte()
+                        (byte)read
                     ];
                     node.Length = node.LengthOctects[0];
                     if (node.Length > 0b10000000)
@@ -243,7 +264,13 @@ namespace MiniBer
                         node.Length = 0;
                         for (int i = 0; i < numBytes; i++)
                         {
-                            node.LengthOctects.Add((byte)ms.ReadByte());
+                            read = ms.ReadByte();
+                            if (read == -1)
+                            {
+                                throw new UnexpectedEndOfStreamException();
+                            }
+
+                            node.LengthOctects.Add((byte)read);
                             node.Length = (node.Length << 8) | node.LengthOctects.Last(); //node.LengthOctects[node.LengthOctects.Count - 1];
                         }
                     }
@@ -268,8 +295,14 @@ namespace MiniBer
                             var dataBuffer = new List<byte>();
                             while (true)
                             {
+                                read = ms.ReadByte();
+                                if (read == -1)
+                                {
+                                    throw new UnexpectedEndOfStreamException();
+                                }
+
                                 buff[0] = buff[1];
-                                buff[1] = (byte)ms.ReadByte();
+                                buff[1] = (byte)read;
                                 if (buff[0] == 0x00 && buff[1] == 0x00)
                                 {
                                     break;
@@ -284,7 +317,13 @@ namespace MiniBer
                             var contents = new List<byte>();
                             for (int i = 0; i < node.Length; i++)
                             {
-                                contents.Add((byte)ms.ReadByte());
+                                read = ms.ReadByte();
+                                if (read == -1)
+                                {
+                                    throw new UnexpectedEndOfStreamException();
+                                }
+
+                                contents.Add((byte)read);
                             }
 
                             node.Contents = [.. contents];

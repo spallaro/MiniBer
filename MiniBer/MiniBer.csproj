@@ -29,7 +29,7 @@
     <PackageId>MiniBer</PackageId>
     <Description>Versatile ASN.1 parser for .NET (BER/DER/CER/TLV).</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/spallaro/MiniBer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -37,7 +37,7 @@
     <PackageIcon>Logo.png</PackageIcon>
     <Authors>Sebastiano Pallaro</Authors>
     <Copyright>© $([System.DateTime]::Now.ToString("yyyy")) $(Authors)</Copyright>
-    <PackageReleaseNotes>$([System.IO.File]::ReadAllText($(MSBuildProjectDirectory)/../CHANGELOG.md))</PackageReleaseNotes>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText($(MSBuildProjectDirectory)/../CHANGELOG.txt))</PackageReleaseNotes>
 
     <!-- Assembly related properties -->
     <AssemblyTitle>$(PackageId)</AssemblyTitle>
@@ -51,7 +51,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\Logo.png" Pack="true" PackagePath="" />
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\Logo.png" Pack="true" PackagePath="\" />
+    <None Include="..\README-NUGET.md" Pack="true" PackagePath="\README.md" />
   </ItemGroup>
 </Project>
